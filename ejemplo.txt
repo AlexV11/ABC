@@ -1,1 +1,1 @@
-VAR varu -> 10;
+abeja
