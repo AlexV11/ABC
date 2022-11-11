@@ -83,6 +83,8 @@ unsigned int automata[][40] = {
     {	75,	75,	75,	75,	75,	75,	75,	75,	75,	75,	75,	75,	75,	75,	75,	75,	75,	75,	75,	75,	75,	75,	75,	75,	75,	75,	75,	75,	75,	75,	75,	75,	75,	75,	75,	75,	75,	75,	75,	75	}
 };
 
+FILE *f;
+
 int obtener_columna(char c) {
 
     // (	)	{	}	-	+	*	/	>	=	<	!	.	;	V	A	R	E	D	O	F	L	S	M	I	N	T	H	Z	C	P	"   ' ' \n	\t	\r	[a-z]	[A-Z]	[0-9]
@@ -104,7 +106,7 @@ int obtener_columna(char c) {
     }
 }
 
-token_t get_token(FILE *f){
+token_t get_token(void){
     char c;
     token_t token;
     int i = 0;
@@ -211,8 +213,14 @@ token_t get_token(FILE *f){
             fseek(f, ftell(f)-1,0);
             return token;
         case 74:
-            token.token = BLANCO;
-            return token;
+            //token.token = BLANCO;
+            //return token;
+
+            i = 0;
+            token.lexema[i] = '\0';
+            token.posicion = ftell(f);
+            estado = 0;
+            break;
         case 75:
             token.token = ERROR;
             return token;
@@ -221,4 +229,8 @@ token_t get_token(FILE *f){
     token.lexema[0] = '\0';
     token.token = FIN;
     return token;
+   }
+
+   void unget_token(token_t token){
+    fseek(f, token.posicion, 0);
    }
