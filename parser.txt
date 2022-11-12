@@ -1,0 +1,2 @@
+SI ( res = n3 ) ENTONCES { IMPRIME(txt); }
+VAR n1 -> 13.4;

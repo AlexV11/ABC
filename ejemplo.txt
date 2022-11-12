@@ -2,7 +2,15 @@ VAR n1 -> 13.4;
 VAR n2 -> 21.1;
 VAR res -> 0;
 VAR txt -> "Hola Mundo";
+VAR n3 -> 12;
 
 res -> n1 + n2;
-SI res = 7 ENTONCES { IMPRIME(txt); }
-SI res != 7 ENTONCES { IMPRIME(res); }
+
+SI ( res = n3 ) ENTONCES { 
+    IMPRIME(txt);
+    IMPRIME(n3);
+}
+
+MIENTRAS ( res != n3 ) HAZ { 
+    IMPRIME(res);
+}

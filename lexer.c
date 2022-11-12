@@ -213,9 +213,6 @@ token_t get_token(void){
             fseek(f, ftell(f)-1,0);
             return token;
         case 74:
-            //token.token = BLANCO;
-            //return token;
-
             i = 0;
             token.lexema[i] = '\0';
             token.posicion = ftell(f);
