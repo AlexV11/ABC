@@ -16,8 +16,9 @@ int op_log_rel(void);
 int s(void) {
     token_t token = get_token();
 
-    if (sentencia()) return 1;
-    if (bloque()) return 1;
+    if (blancos() && sentencia() && blancos()) return 1;
+    if (blancos() && bloque() && blancos()) return 1;
+
     unget_token(token);
     return 0;
 }
@@ -36,27 +37,26 @@ int sentencia(void) {
             if (s()) return 1;
         }
     }
-
-    return 0;
 }
 
 int bloque(void) {
     if (ciclo() && s()) return 1;
     if (condicional() && s()) return 1;
-
-    return 0;
 }
 
 int declaracion(void) {
     token_t token = get_token();
-
-    if (token.token == VARIABLE) {
-        token_t token = get_token();
+    if (VARIABLE == token.token) {
         if (blancos()) {
-            if (token.token == NOM_VAR) {
-                token_t token = get_token();
-                if (token.token == ASIGNA) {
-                    if (operacion()) return 1;
+            token = get_token();
+            if (NOM_VAR == token.token) {
+                if (blancos()) {
+                    token = get_token();
+                    if (ASIGNA == token.token) {
+                        if (blancos()) {
+                            if (operacion()) return 1;
+                        }
+                    }
                 }
             }
         }
@@ -65,11 +65,9 @@ int declaracion(void) {
 
 int blancos(void) {
     token_t token = get_token();
-
-    if (token.token == BLANCO) {
+    if (BLANCO == token.token) {
         if (blancos()) return 1;
     }
-
     unget_token(token);
     return 1;
 }
@@ -78,71 +76,89 @@ int operacion(void) {
     if (valor()) return 1;
 
     token_t token = get_token();
-    if (token.token == NOM_VAR) {
-        if (operador()) {
-            token_t token = get_token();
-            if (token.token == NOM_VAR) return 1;
+    if (NOM_VAR == token.token) {
+        if (blancos()) {
+            if (operador()) {
+                if (blancos()) {
+                    token_t token = get_token();
+                    if (NOM_VAR == token.token) return 1;
+                }
+            }
         }
     }
-
-    return 0;
 }
 
 int operador(void) {
     token_t token = get_token();
 
-    if (token.token == SUMA) return 1;
-    if (token.token == RESTA) return 1;
-    if (token.token == MULT) return 1;
-    if (token.token == DIV) return 1;
+    if (SUMA == token.token) return 1;
+    if (RESTA == token.token) return 1;
+    if (MULT == token.token) return 1;
+    if (DIV == token.token) return 1;
 
+    unget_token(token);
     return 0;
 }
 
 int valor(void) {
     token_t token = get_token();
 
-    if (token.token == TRUE) return 1;
-    if (token.token == FALSE) return 1;
-    if (token.token == TEXTO) return 1;
-    if (token.token == NUMERO) return 1;
+    if (NUMERO == token.token) return 1;
+    if (TEXTO == token.token) return 1;
+    if (TRUE == token.token) return 1;
+    if (FALSE == token.token) return 1;
 
+    unget_token(token);
     return 0;
 }
 
 int funcion(void) {
     token_t token = get_token();
-
-    if (token.token == PRINT) {
+    if (PRINT == token.token) {
         token_t token = get_token();
-        if (token.token == P_IZQ) {
-            token_t token = get_token();
-            if (token.token == NOM_VAR) {
+        if (P_IZQ == token.token) {
+            if (blancos()) {
                 token_t token = get_token();
-                if (token.token == P_DER) return 1;
+                if (NOM_VAR == token.token) {
+                    if (blancos()) {
+                        token_t token = get_token();
+                        if (P_DER == token.token) return 1;
+                    }
+                }
             }
         }
     }
-
-    return 0;
 }
 
 int ciclo(void) {
     token_t token = get_token();
-
-    if (token.token == WHILE) {
-        token_t token = get_token();
-        if (token.token == P_IZQ) {
-            if (condicion()) {
-                token_t token = get_token();
-                if (token.token == P_DER) {
-                    token_t token = get_token();
-                    if (token.token == DO) {
-                        token_t token = get_token();
-                        if (token.token == C_IZQ) {
-                            if (s()) {
-                                token_t token = get_token();
-                                if (token.token == C_DER) return 1;
+    if (WHILE == token.token) {
+        if (blancos()) {
+            token_t token = get_token();
+            if (P_IZQ == token.token) {
+                if (blancos()) {
+                    if (condicion()) {
+                        if (blancos()) {
+                            token_t token = get_token();
+                            if (P_DER == token.token) {
+                                if (blancos()) {
+                                    token_t token = get_token();
+                                    if (DO == token.token) {
+                                        if (blancos()) {
+                                            token_t token = get_token();
+                                            if (C_IZQ == token.token) {
+                                                if (blancos()) {
+                                                    if (s()) {
+                                                        if (blancos()) {
+                                                            token_t token = get_token();
+                                                            if (C_DER == token.token) return 1;
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
                             }
                         }
                     }
@@ -150,26 +166,37 @@ int ciclo(void) {
             }
         }
     }
-
-    return 0;
 }
 
 int condicional(void) {
     token_t token = get_token();
-
-    if (token.token == IF) {
-        token_t token = get_token();
-        if (token.token == P_IZQ) {
-            if (condicion()) {
-                token_t token = get_token();
-                if (token.token == P_DER) {
-                    token_t token = get_token();
-                    if (token.token == THEN) {
-                        token_t token = get_token();
-                        if (token.token == C_IZQ) {
-                            if (s()) {
-                                token_t token = get_token();
-                                if (token.token == C_DER) return 1;
+    if (IF == token.token) {
+        if (blancos()) {
+            token_t token = get_token();
+            if (P_IZQ == token.token) {
+                if (blancos()) {
+                    if (condicion()) {
+                        if (blancos()) {
+                            token_t token = get_token();
+                            if (P_DER == token.token) {
+                                if (blancos()) {
+                                    token_t token = get_token();
+                                    if (THEN == token.token) {
+                                        if (blancos()) {
+                                            token_t token = get_token();
+                                            if (C_IZQ == token.token) {
+                                                if (blancos()) {
+                                                    if (s()) {
+                                                        if (blancos()) {
+                                                            token_t token = get_token();
+                                                            if (C_DER == token.token) return 1;
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
                             }
                         }
                     }
@@ -177,34 +204,35 @@ int condicional(void) {
             }
         }
     }
-
-    return 0;
 }
 
 int condicion(void) {
     token_t token = get_token();
-
-    if (token.token == NOM_VAR) {
-        if (op_log_rel()) {
-            token_t token = get_token();
-            if (token.token == NOM_VAR) return 1;
+    if (NOM_VAR == token.token) {
+        if (blancos()) {
+            if (op_log_rel()) {
+                if (blancos()) {
+                    token_t token = get_token();
+                    if (NOM_VAR == token.token) return 1;
+                }
+            }
         }
-
-        return 1;
     }
 
-    return 0;
+    unget_token(token);
+
+    if (NOM_VAR == token.token) return 1;
 }
 
 int op_log_rel(void) {
     token_t token = get_token();
 
-    if (token.token == MAYOR) return 1;
-    if (token.token == MENOR) return 1;
-    if (token.token == IGUAL) return 1;
-    if (token.token == DIFERENTE) return 1;
-    if (token.token == MAYOR_IGUAL) return 1;
-    if (token.token == MENOR_IGUAL) return 1;
+    if (IGUAL == token.token) return 1;
+    if (MAYOR == token.token) return 1;
+    if (MENOR == token.token) return 1;
+    if (MAYOR_IGUAL == token.token) return 1;
+    if (MENOR_IGUAL == token.token) return 1;
+    if (DIFERENTE == token.token) return 1;
 
     unget_token(token);
     return 0;
